@@ -1,4 +1,4 @@
-namespace Sync.Application.Users.CreteUser;
+namespace Sync.Application.Users.CreateUser;
 
 class CreateUserHandler
 {
