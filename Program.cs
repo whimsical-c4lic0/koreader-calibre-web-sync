@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Sync.Configuration;
 
@@ -40,5 +41,18 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 Sync.Application.Setup.AddRoutes(app);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Static")
+    ),
+    RequestPath = "/static",
+    OnPrepareResponse = ctx =>
+    {
+        // Override the 401 status code from the authentication middleware
+        ctx.Context.Response.StatusCode = 200;
+    }
+});
 
 app.Run();
