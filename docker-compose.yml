@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  calibre-web:
+    image: lscr.io/linuxserver/calibre-web:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./dockercache/calibre-web/config:/config
+      - ./books:/books
+    ports:
+      - ${CALIBRE_WEB_PORT}:8083
+
+  koreader:
+    image: ghcr.io/whimsical-c4lic0/koreader:latest
+    ports:
+      - ${KOREADER_PORT}:8080
+
+  sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - ${SYNC_PORT}:5000
