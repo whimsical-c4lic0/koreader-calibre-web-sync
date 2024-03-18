@@ -47,12 +47,7 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Static")
     ),
-    RequestPath = "/static",
-    OnPrepareResponse = ctx =>
-    {
-        // Override the 401 status code from the authentication middleware
-        ctx.Context.Response.StatusCode = 200;
-    }
+    RequestPath = "/static"
 });
 
 app.Run();

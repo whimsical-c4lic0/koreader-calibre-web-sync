@@ -9,20 +9,32 @@ namespace Sync.Configuration;
 public class CustomAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly AuthenticationService _authenticationService;
+    private IConfiguration _config;
 
     public CustomAuthenticationHandler(
         IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
-        AuthenticationService authenticationService
+        AuthenticationService authenticationService,
+        IConfiguration config
     ) : base(options, logger, encoder, clock)
     {
         _authenticationService = authenticationService;
+        _config = config;
     }
 
-    protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        var pathPrefixes = _config.GetSection("UnauthenticatedPathPrefixes").Get<List<string>>() ?? [];
+        foreach (var pathPrefix in pathPrefixes)
+        {
+            if (Request.Path.Value != null && Request.Path.Value.StartsWith(pathPrefix))
+            {
+                return AuthenticateResult.NoResult();
+            }
+        }
+
         var authUserHeader = Request.Headers["x-auth-user"].ToString();
         if (!string.IsNullOrWhiteSpace(authUserHeader))
         {
@@ -33,7 +45,7 @@ public class CustomAuthenticationHandler : AuthenticationHandler<AuthenticationS
             }
 
             var parts = authUserHeader.Split('@', StringSplitOptions.TrimEntries);
-            var username = string.Join('@', parts[0..(parts.Length - 1)]);
+            var username = string.Join('@', parts[0..^1]);
             var hostUrl = parts.Last();
 
             if (!username.Contains(':'))

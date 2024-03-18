@@ -4,38 +4,27 @@ using Sync.Infrastructure.Services;
 
 namespace Sync.Configuration;
 
-public class AuthenticationService
+public class AuthenticationService(IUserRepository userRepository, CalibreWebService calibre)
 {
-    private readonly IUserRepository _userRepository;
-    private readonly CalibreWebService _calibre;
-
-    public AuthenticationService(IUserRepository userRepository, CalibreWebService calibre)
-    {
-        _userRepository = userRepository;
-        _calibre = calibre;
-    }
-
     public async Task<bool> AuthenticateAsync(User user)
     {
-        var cachedUser = _userRepository.Get(user.HostUrl, user.Username);
+        var cachedUser = userRepository.Get(user.HostUrl, user.Username);
         if (cachedUser != null && cachedUser.Password == user.Password)
             return true;
 
-        if (await _calibre.LoginAsync(user))
+        if (await calibre.LoginAsync(user))
         {
             if (cachedUser != null)
             {
-                _userRepository.Update(user);
+                userRepository.Update(user);
             }
             else
             {
-                _userRepository.Add(user);
+                userRepository.Add(user);
             }
             return true;
         }
 
         return false;
     }
-
-
 }
