@@ -5,7 +5,7 @@ COPY Sync.csproj ./
 RUN dotnet restore "Sync.csproj" --runtime linux-musl-x64
 COPY . .
 RUN dotnet publish -c Release -o out \
-    --no-restore \  
+    --no-restore \
     --runtime linux-musl-x64 \
     --self-contained true \
     /p:PublishTrimmed=true \

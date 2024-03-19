@@ -6,14 +6,20 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
+      - DOCKER_MODS=linuxserver/mods:universal-calibre
     volumes:
       - ./dockercache/calibre-web/config:/config
-      - ./books:/books
+      - ./dockercache/calibre-web/library:/books
+      - ./docker/calibre-web/startup_scripts:/custom-cont-init.d:ro
+      - ./docker/books:/import:ro
     ports:
       - ${CALIBRE_WEB_PORT}:8083
 
   koreader:
     image: ghcr.io/whimsical-c4lic0/koreader:latest
+    volumes:
+      - ./dockercache/koreader/config:/home/novnc/.config/koreader
+      - ./docker/books:/docs
     ports:
       - ${KOREADER_PORT}:8080
 
